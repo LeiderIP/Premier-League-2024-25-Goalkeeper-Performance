@@ -56,23 +56,25 @@ select:hover,select:focus,.search-input:focus{border-color:var(--blue)}
 .search-input::placeholder{color:var(--text-sec);opacity:.7}
 
 /* ── Scatter view ── */
-#scatter-wrap{max-width:760px;width:100%;padding:0 20px}
+#scatter-wrap{max-width:920px;width:100%;padding:0 20px}
 #scatter-svg{width:100%;height:auto;display:block}
 
 /* ── Detail view ── */
-#detail-view{display:none;width:100%;max-width:1060px;padding:0 20px;
+#detail-view{display:none;width:100%;max-width:1400px;padding:0 20px;
               gap:24px;justify-content:center}
-.detail-main{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;width:100%}
-.pitch-half-wrap{flex-shrink:0}
-#gk-pitch-svg{width:340px;height:auto;display:block;
-              border:1px solid var(--border);border-radius:10px}
-.stats-col{display:flex;flex-direction:column;gap:8px;width:230px;flex-shrink:0}
+.detail-main{display:flex;gap:48px;flex-wrap:wrap;justify-content:center;
+              align-items:flex-start;width:100%}
+.pitch-half-wrap{flex-shrink:0;width:560px;max-width:100%}
+#gk-pitch-svg{width:100%;height:auto;display:block;
+              border:1px solid var(--border);border-radius:12px}
+.stats-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;
+            width:480px;max-width:100%;align-content:start}
 .stat-card{background:var(--panel);border:1px solid var(--border);
-            border-radius:10px;padding:12px 14px}
-.stat-card .lbl{font-size:.60rem;color:var(--text-sec);letter-spacing:.14em;
-                 text-transform:uppercase;margin-bottom:3px}
-.stat-card .val{font-family:var(--font-head);font-size:1.7rem;letter-spacing:.04em;line-height:1}
-.stat-card .sub{font-size:.68rem;color:var(--text-sec);margin-top:2px}
+            border-radius:12px;padding:20px 22px}
+.stat-card .lbl{font-size:.66rem;color:var(--text-sec);letter-spacing:.14em;
+                 text-transform:uppercase;margin-bottom:6px}
+.stat-card .val{font-family:var(--font-head);font-size:2.3rem;letter-spacing:.04em;line-height:1}
+.stat-card .sub{font-size:.74rem;color:var(--text-sec);margin-top:5px}
 
 /* ── Tooltip ── */
 #tooltip{
@@ -149,7 +151,7 @@ footer{margin:18px 0 24px;font-size:.68rem;color:var(--text-sec);
           <rect x="305" y="12" width="90" height="10" fill="rgba(255,255,255,0.85)"/>
           <g id="shot-layer"></g>
         </svg>
-        <div class="legend" style="margin-top:8px;max-width:340px">
+        <div class="legend" style="margin-top:14px;max-width:560px">
           <div class="leg-item"><div class="leg-dot" style="background:#00C853"></div><span>Saved / Blocked</span></div>
           <div class="leg-item"><div class="leg-dot" style="background:#FF5252"></div><span>Goal</span></div>
           <div class="leg-item"><span>Size = shot danger (PSxG)</span></div>
@@ -158,7 +160,7 @@ footer{margin:18px 0 24px;font-size:.68rem;color:var(--text-sec);
       <div class="stats-col">
         <div class="stat-card">
           <div class="lbl">Goalkeeper</div>
-          <div class="val" id="d-name" style="font-size:1.25rem">—</div>
+          <div class="val" id="d-name" style="font-size:1.7rem">—</div>
           <div class="sub" id="d-team">—</div>
         </div>
         <div class="stat-card">
