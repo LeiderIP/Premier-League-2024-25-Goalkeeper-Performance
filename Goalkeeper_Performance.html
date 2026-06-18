@@ -132,7 +132,11 @@ footer{margin:18px 0 24px;font-size:.68rem;color:var(--text-sec);
       </div>
       <div class="sw">
         <label>Goalkeeper</label>
-        <select id="sel-gk" onchange="renderDetail()"></select>
+        <select id="sel-gk" onchange="onKeeperChange()"></select>
+      </div>
+      <div class="sw">
+        <label>Match</label>
+        <select id="sel-match-filter" onchange="drawShotMap()"></select>
       </div>
     </div>
     <div class="detail-main">
@@ -338,19 +342,46 @@ function filterKeepers() {
   const filtered = q ? _allKeeperNames.filter(n=>n.toLowerCase().includes(q)) : _allKeeperNames;
   fillKeeperSelect(filtered);
   if (filtered.length === 1) document.getElementById('sel-gk').value = filtered[0];
+  onKeeperChange();
+}
+
+function onKeeperChange() {
   renderDetail();
+}
+
+// ── Populate the Match filter — "Full Season" first, then each match the
+// keeper actually appeared in, alphabetically ──
+function populateMatchFilter(k) {
+  const sel = document.getElementById('sel-match-filter');
+  const prev = sel.value;
+  const matches = [...new Set(k.shots.map(s => s.match))].sort();
+
+  sel.innerHTML = '';
+  const fullOpt = document.createElement('option');
+  fullOpt.value = '__FULL_SEASON__';
+  fullOpt.textContent = '★ Full Season (compiled)';
+  sel.appendChild(fullOpt);
+
+  matches.forEach(m => {
+    const o = document.createElement('option');
+    o.value = o.textContent = m;
+    sel.appendChild(o);
+  });
+
+  // Keep the same match selected if the new keeper also played it; else reset
+  if (matches.includes(prev)) sel.value = prev;
+  else sel.value = '__FULL_SEASON__';
 }
 
 function renderDetail() {
   const name = document.getElementById('sel-gk').value;
   const k = KEEPERS.find(x => x.player === name);
-  const svg = document.getElementById('shot-layer');
-  svg.innerHTML = '';
-  _shotPoints = [];
   if (!k) return;
+  _currentKeeper = k;
 
   const color = TEAM_COLORS[k.team] || '#016AF2';
 
+  // ── Stat cards always reflect full-season totals ──
   document.getElementById('d-name').textContent = k.player;
   document.getElementById('d-name').style.color = color;
   document.getElementById('d-team').textContent = k.team;
@@ -368,12 +399,32 @@ function renderDetail() {
   document.getElementById('d-shotsfaced-sub').textContent =
     `${k.on_target} on target · avg ${k.avg_danger} PSxG`;
 
+  populateMatchFilter(k);
+  drawShotMap();
+}
+
+// ── Draws the shot-stopping map — either the full season compiled, or a
+// single selected match, based on the Match filter dropdown ──
+let _currentKeeper = null;
+
+function drawShotMap() {
+  const k = _currentKeeper;
+  const svg = document.getElementById('shot-layer');
+  svg.innerHTML = '';
+  _shotPoints = [];
+  if (!k) return;
+
+  const matchFilter = document.getElementById('sel-match-filter').value;
+  const shots = matchFilter === '__FULL_SEASON__'
+    ? k.shots
+    : k.shots.filter(s => s.match === matchFilter);
+
   // ── Pitch mapping: goal at bottom (y=480), shots fan upward ──
   const PAD=20, GOAL_Y=480, MAP_H=460, MAX_DIST=60, FULL_W=660;
   const xScale = y80 => PAD + (y80/80)*FULL_W;
   const yScale = distFromGoal => GOAL_Y - (Math.min(distFromGoal,MAX_DIST)/MAX_DIST)*MAP_H;
 
-  k.shots.forEach(s => {
+  shots.forEach(s => {
     if (s.x === null || s.y === null) return;
     const cx = xScale(s.y), cy = yScale(s.x);
     const isGoal = s.outcome === 'Goal';
@@ -426,7 +477,7 @@ function toggleTheme() {
   document.body.classList.toggle('light', !isDark);
   document.getElementById('theme-btn').innerHTML = isDark ? '&#9728; LIGHT MODE' : '&#9790; DARK MODE';
   document.getElementById('gk-pitch-rect').setAttribute('fill', isDark?'#1a5c2e':'#2d8a45');
-  if (currentMode==='overview') renderScatter(); else renderDetail();
+  if (currentMode==='overview') renderScatter(); else drawShotMap();
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
